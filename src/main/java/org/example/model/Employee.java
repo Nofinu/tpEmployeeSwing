@@ -13,4 +13,11 @@ public class Employee {
     private String lastName;
     private Role role;
     private Department department;
+
+    public Employee(String firstName, String lastName, Role role, Department department) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.role = role;
+        this.department = department;
+    }
 }

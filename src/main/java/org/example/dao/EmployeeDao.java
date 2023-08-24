@@ -30,9 +30,9 @@ public class EmployeeDao {
         try {
             ps = con.prepareStatement("INSERT INTO employee(`firstname`,`lastname`,`role`,`department_id`) VALUES(?,?,?,?) ");
             ps.setString(1, employee.getFirstName());
-            ps.setString(1, employee.getLastName());
-            ps.setString(1, employee.getRole().toString());
-            ps.setInt(1, employee.getDepartment().getId());
+            ps.setString(2, employee.getLastName());
+            ps.setString(3, employee.getRole().toString());
+            ps.setInt(4, employee.getDepartment().getId());
             int n = ps.executeUpdate();
             return n>0;
 
@@ -48,10 +48,10 @@ public class EmployeeDao {
         try {
             ps = con.prepareStatement("UPDATE employee SET firstname = ?,lastname = ?,role = ?,department_id = ? where id = ?");
             ps.setString(1, employee.getFirstName());
-            ps.setString(1, employee.getLastName());
-            ps.setString(1, employee.getRole().toString());
-            ps.setInt(1, employee.getDepartment().getId());
-            ps.setInt(2, employee.getId());
+            ps.setString(2, employee.getLastName());
+            ps.setString(3, employee.getRole().toString());
+            ps.setInt(4, employee.getDepartment().getId());
+            ps.setInt(5, employee.getId());
             int n = ps.executeUpdate();
             return n>0;
         } catch (SQLException e) {

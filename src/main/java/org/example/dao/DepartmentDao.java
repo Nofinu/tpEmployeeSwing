@@ -77,6 +77,21 @@ public class DepartmentDao {
             return null;
         }
     }
+    public Department findByName(String name) {
+        con = ConnectionUtil.getConnection();
+        try {
+            ps = con.prepareStatement("SELECT id,name FROM department where name = ? ");
+            ps.setString(1, name);
+            resultSet = ps.executeQuery();
+            if(resultSet.next()){
+                return  new Department(resultSet.getInt("id"),resultSet.getString("name"));
+            }
+            return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public List<Department> findAll (){
         con = ConnectionUtil.getConnection();

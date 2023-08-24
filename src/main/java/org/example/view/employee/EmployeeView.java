@@ -2,6 +2,8 @@ package org.example.view.employee;
 
 import lombok.Data;
 import org.example.Main;
+import org.example.dao.EmployeeDao;
+import org.example.model.Employee;
 import org.example.view.MainPage;
 import org.example.view.department.DepartmentView;
 
@@ -10,12 +12,14 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 @Data
 public class EmployeeView {
     private MainPage mainPage;
     private JPanel employeePanel;
     private DepartmentView departmentView;
+    private EmployeeDao employeeDao;
     private static String[] columnNames = {"Id","FirstName","LastName","Role"};
     private DefaultTableModel dtm = new DefaultTableModel(null, columnNames) {
 
@@ -24,11 +28,12 @@ public class EmployeeView {
             return getValueAt(0, col).getClass();
         }
     };
+
     public EmployeeView(MainPage mainPage, DepartmentView departmentView) {
+        employeeDao = new EmployeeDao();
         this.mainPage = mainPage;
         employeePanel = new JPanel(new BorderLayout());
         JTable table = new JTable(dtm);
-        dtm.addRow(new Object[]{"id","FirstName","LastName","Rôle"});
         employeePanel.add(table,BorderLayout.NORTH);
 
         Container container = new Container();
@@ -58,9 +63,21 @@ public class EmployeeView {
         container.add(buttonDelete);
         container.add(buttonSwitchView);
 
+        refreshTab();
         employeePanel.add(container,BorderLayout.SOUTH);
-
-
     }
 
+    public void refreshTab (){
+        List<Employee> employees = employeeDao.findAll();
+        dtm = new DefaultTableModel(null, columnNames) {
+            @Override
+            public Class<?> getColumnClass(int col) {
+                return getValueAt(0, col).getClass();
+            }
+        };
+        dtm.addRow(new Object[]{"id","FirstName","LastName","Rôle"});
+        employees.forEach(e -> {
+            dtm.addRow(new Object[]{e.getId(),e.getFirstName(),e.getLastName(),e.getRole().toString()});
+        });
+    }
 }

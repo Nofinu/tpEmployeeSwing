@@ -4,6 +4,7 @@ import org.example.dao.DepartmentDao;
 import org.example.dao.EmployeeDao;
 import org.example.model.Department;
 import org.example.model.Employee;
+import org.example.model.Role;
 import org.example.view.department.DepartmentView;
 
 import javax.swing.*;
@@ -19,6 +20,7 @@ public class AddEmployee extends JDialog{
     private EmployeeDao employeeDao;
     private DepartmentDao departmentDao;
     private JDialog jDialog;
+    private List<String> departementNameList;
 
     public AddEmployee(JPanel mainPage) {
         super();
@@ -78,18 +80,27 @@ public class AddEmployee extends JDialog{
         departementLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 
 
-
-        JComboBox<String> departementList = new JComboBox<>(findDepartment().toArray(new String[0]));
+        departementNameList = findDepartment();
+        JComboBox<String> departementList = new JComboBox<>(departementNameList.toArray(new String[0]));
 
         JButton addButton = new JButton("Add");
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Employee employee = new Employee();
+                Role roleSelected;
+                if(manager.isSelected()){
+                    roleSelected = Role.MANAGER;
+                }
+                else if (employee.isSelected()) {
+                    roleSelected = Role.EMPLOYEE;
+                }
+                else {
+                    roleSelected=Role.RH;
+                }
+                Employee employee = new Employee(firstNameTextField.getText(),lastNameTextField.getText(),roleSelected,departmentDao.findByName(departementNameList.get(departementList.getSelectedIndex())));
                 if(employeeDao.add(employee)){
                     dispose();
-                    JOptionPane.showMessageDialog(jDialog,"Department add");
-
+                    JOptionPane.showMessageDialog(jDialog,"Employee add");
                 }
                 else{
                     JOptionPane.showMessageDialog(jDialog,"Error !");
