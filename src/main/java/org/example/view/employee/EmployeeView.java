@@ -20,6 +20,8 @@ public class EmployeeView {
     private JPanel employeePanel;
     private DepartmentView departmentView;
     private EmployeeDao employeeDao;
+    private EmployeeView employeeView;
+    private JTable table;
     private static String[] columnNames = {"Id","FirstName","LastName","Role"};
     private DefaultTableModel dtm = new DefaultTableModel(null, columnNames) {
 
@@ -31,9 +33,10 @@ public class EmployeeView {
 
     public EmployeeView(MainPage mainPage, DepartmentView departmentView) {
         employeeDao = new EmployeeDao();
+        employeeView =this;
         this.mainPage = mainPage;
         employeePanel = new JPanel(new BorderLayout());
-        JTable table = new JTable(dtm);
+        table = new JTable(dtm);
         employeePanel.add(table,BorderLayout.NORTH);
 
         Container container = new Container();
@@ -43,12 +46,33 @@ public class EmployeeView {
         buttonAdd.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AddEmployee addEmployee = new AddEmployee(employeePanel);
+                AddEmployee addEmployee = new AddEmployee(employeePanel,employeeView);
                 addEmployee.start();
             }
         });
         JButton buttonEdit = new JButton("Edit");
+        buttonEdit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int idRow = table.getSelectedRow();
+                EditEmployee editEmployee = new EditEmployee(employeePanel,employeeView,(Integer) table.getValueAt(idRow,0));
+                editEmployee.start();
+            }
+        });
         JButton buttonDelete = new JButton("Delete");
+        buttonDelete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int idRow = table.getSelectedRow();
+                int idSelected = (Integer) table.getValueAt(idRow,0);
+                if(employeeDao.delete(idSelected)){
+                    JOptionPane.showMessageDialog(employeePanel,"Employee Delete");
+                }
+                else {
+                    JOptionPane.showMessageDialog(employeePanel,"Error");
+                }
+            }
+        });
         JButton buttonSwitchView = new JButton("Departement");
         buttonSwitchView.addActionListener(new ActionListener() {
             @Override
@@ -76,8 +100,12 @@ public class EmployeeView {
             }
         };
         dtm.addRow(new Object[]{"id","FirstName","LastName","Rôle"});
-        employees.forEach(e -> {
-            dtm.addRow(new Object[]{e.getId(),e.getFirstName(),e.getLastName(),e.getRole().toString()});
-        });
+        if(!employees.isEmpty()) {
+            employees.forEach(e -> {
+                dtm.addRow(new Object[]{e.getId(), e.getFirstName(), e.getLastName(), e.getRole().toString()});
+            });
+        }
+        table.setModel(dtm);
     }
+
 }

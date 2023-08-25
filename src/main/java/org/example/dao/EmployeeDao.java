@@ -22,7 +22,7 @@ public class EmployeeDao {
     private DepartmentDao departmentDao;
 
     public EmployeeDao() {
-        departmentDao =new DepartmentDao();
+       departmentDao = new DepartmentDao();
     }
 
     public boolean add(Employee employee) {
@@ -98,7 +98,7 @@ public class EmployeeDao {
         con = ConnectionUtil.getConnection();
         List<Employee> list = new ArrayList<>();
         try {
-            ps = con.prepareStatement("SELECT id,firstname,lastname,role,department_id FROM department ");
+            ps = con.prepareStatement("SELECT id,firstname,lastname,role,department_id FROM employee ");
             resultSet = ps.executeQuery();
             while(resultSet.next()){
                 list.add(new Employee(resultSet.getInt("id"),
@@ -107,13 +107,11 @@ public class EmployeeDao {
                         resultSet.getString("role").equals("MANAGER")? Role.MANAGER :resultSet.getString("role").equals("EMPLOYEE")? Role.EMPLOYEE : Role.RH,
                         departmentDao.findById(resultSet.getInt("department_id"))));
             }
-            if(list.isEmpty()){
-                throw new RuntimeException("List Vide");
-            }
             return list;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
+
 }

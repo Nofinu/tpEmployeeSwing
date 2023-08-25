@@ -5,7 +5,6 @@ import org.example.dao.EmployeeDao;
 import org.example.model.Department;
 import org.example.model.Employee;
 import org.example.model.Role;
-import org.example.view.department.DepartmentView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,22 +13,30 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddEmployee extends JDialog{
-
+public class EditEmployee extends JDialog {
     private JPanel mainPage;
     private EmployeeDao employeeDao;
     private DepartmentDao departmentDao;
     private JDialog jDialog;
     private List<String> departementNameList;
     private EmployeeView employeeView;
+    private int id;
 
-    public AddEmployee(JPanel mainPage,EmployeeView employeeView) {
+    private JTextField firstNameTextField;
+    private JTextField lastNameTextField;
+    private JRadioButton manager;
+    private JRadioButton employee;
+    private JRadioButton rh;
+    private JComboBox<String> departementList;
+
+    public EditEmployee(JPanel mainPage,EmployeeView employeeView,int id) {
         super();
         this.mainPage = mainPage;
         employeeDao = new EmployeeDao();
         departmentDao = new DepartmentDao();
         jDialog = this;
         this.employeeView = employeeView;
+        this.id = id;
     }
 
     public void start() {
@@ -43,11 +50,11 @@ public class AddEmployee extends JDialog{
 
         JLabel firstNameLabel = new JLabel("FirstName :");
         firstNameLabel.setFont(new Font("Arial", Font.PLAIN, 20));
-        JTextField firstNameTextField = new JTextField(20);
+        firstNameTextField = new JTextField(20);
 
         JLabel lastNameLabel = new JLabel("LastName :");
         lastNameLabel.setFont(new Font("Arial", Font.PLAIN, 20));
-        JTextField lastNameTextField = new JTextField(20);
+        lastNameTextField = new JTextField(20);
 
         Container container = new Container();
         container.setLayout(new FlowLayout());
@@ -55,19 +62,19 @@ public class AddEmployee extends JDialog{
         JLabel roleLabel = new JLabel("Role :");
         roleLabel.setFont(new Font("Arial", Font.PLAIN, 20));
 
-        JRadioButton manager = new JRadioButton("Manager");
+        manager = new JRadioButton("Manager");
         manager.setFont(new Font("Arial", Font.PLAIN, 15));
         manager.setSelected(true);
         manager.setSize(75, 20);;
         container.add(manager);
 
-        JRadioButton employee = new JRadioButton("Employee");
+        employee = new JRadioButton("Employee");
         employee.setFont(new Font("Arial", Font.PLAIN, 15));
         employee.setSelected(false);
         employee.setSize(80, 20);
         container.add(employee);
 
-        JRadioButton rh = new JRadioButton("RH");
+        rh = new JRadioButton("RH");
         rh.setFont(new Font("Arial", Font.PLAIN, 15));
         rh.setSelected(false);
         rh.setSize(80, 20);
@@ -83,7 +90,8 @@ public class AddEmployee extends JDialog{
 
 
         departementNameList = findDepartment();
-        JComboBox<String> departementList = new JComboBox<>(departementNameList.toArray(new String[0]));
+        departementList = new JComboBox<>(departementNameList.toArray(new String[0]));
+
 
         JButton addButton = new JButton("Add");
         addButton.addActionListener(new ActionListener() {
@@ -99,8 +107,8 @@ public class AddEmployee extends JDialog{
                 else {
                     roleSelected=Role.RH;
                 }
-                Employee employee = new Employee(firstNameTextField.getText(),lastNameTextField.getText(),roleSelected,departmentDao.findByName(departementNameList.get(departementList.getSelectedIndex())));
-                if(employeeDao.add(employee)){
+                Employee employee = new Employee(id,firstNameTextField.getText(),lastNameTextField.getText(),roleSelected,departmentDao.findByName(departementNameList.get(departementList.getSelectedIndex())));
+                if(employeeDao.update(employee)){
                     dispose();
                     JOptionPane.showMessageDialog(jDialog,"Employee add");
                     employeeView.refreshTab();
@@ -143,17 +151,33 @@ public class AddEmployee extends JDialog{
         c.gridwidth = 2;
         this.add(addButton,c);
 
+        setValueEntry();
 
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setVisible(true);
     }
 
-    private List<String> findDepartment (){
-        List<Department> departments = departmentDao.findAll();
+    private java.util.List<String> findDepartment (){
+        java.util.List<Department> departments = departmentDao.findAll();
         List<String> departmentName = new ArrayList<>();
         departments.forEach(d -> {
             departmentName.add(d.getName());
         });
         return departmentName;
+    }
+
+    private void setValueEntry (){
+        Employee employeefind =  employeeDao.findById(id);
+        firstNameTextField.setText(employeefind.getFirstName());
+        lastNameTextField.setText(employeefind.getLastName());
+        if(employeefind.getRole().toString().equals("MANAGER")){
+            manager.setSelected(true);
+        }else if (employeefind.getRole().toString().equals("EMPLOYEE")){
+            employee.setSelected(true);
+        }else{
+            rh.setSelected(true);
+        }
+        String departementName = departmentDao.findById(employeefind.getDepartment().getId()).getName();
+        departementList.setSelectedItem(departementName);
     }
 }
